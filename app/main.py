@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
-from app.routers import ai
+from app.routers import ai, schedule
 from app.dependencies import get_ai_service
 
 app = FastAPI(
@@ -52,6 +52,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # 包含路由
 app.include_router(ai.router, prefix="/api/ai", tags=["AI服务"])
+app.include_router(schedule.router, prefix="/api/schedule", tags=["课表转换"])
 
 if __name__ == "__main__":
     import uvicorn
