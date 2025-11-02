@@ -1,0 +1,461 @@
+{
+	"info": {
+		"_postman_id": "document-analysis-api",
+		"name": "文档分析API",
+		"description": "文档分析功能的 Postman 测试集合",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. 获取索引状态",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"返回索引状态信息\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('index_loaded');",
+							"    pm.expect(jsonData).to.have.property('index_dir');",
+							"    pm.expect(jsonData).to.have.property('docs_root');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/document/status",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"status"
+					]
+				},
+				"description": "获取文档索引的当前状态信息"
+			},
+			"response": []
+		},
+		{
+			"name": "2. 重建索引",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"索引重建成功\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include('成功');",
+							"    pm.expect(jsonData).to.have.property('chunks_count');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/document/rebuild-index",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"rebuild-index"
+					]
+				},
+				"description": "重新构建文档索引，返回文档块数量"
+			},
+			"response": []
+		},
+		{
+			"name": "3. 文档查询-问答模式",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"返回答案\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('answer');",
+							"    pm.expect(jsonData).to.have.property('mode');",
+							"    pm.expect(jsonData.mode).to.equal('qa');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"如何使用GPIO驱动LED？\",\n  \"mode\": \"qa\",\n  \"k\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/document/query",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"query"
+					]
+				},
+				"description": "使用问答模式查询文档内容"
+			},
+			"response": []
+		},
+		{
+			"name": "4. 文档查询-代码生成模式",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"返回代码\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('answer');",
+							"    pm.expect(jsonData.mode).to.equal('code');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"生成一个LED闪烁的示例代码\",\n  \"mode\": \"code\",\n  \"k\": 4\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/document/query",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"query"
+					]
+				},
+				"description": "使用代码生成模式查询文档并生成代码"
+			},
+			"response": []
+		},
+		{
+			"name": "5. 文档查询-自动模式检测(问答)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"自动检测为问答模式\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.mode).to.equal('qa');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"UART接口的参数有哪些？\",\n  \"mode\": \"auto\",\n  \"k\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/document/query",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"query"
+					]
+				},
+				"description": "自动检测模式，应识别为问答模式"
+			},
+			"response": []
+		},
+		{
+			"name": "6. 文档查询-自动模式检测(代码)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"自动检测为代码生成模式\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.mode).to.equal('code');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"写一个按钮中断处理的示例\",\n  \"mode\": \"auto\",\n  \"k\": 4\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/document/query",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"query"
+					]
+				},
+				"description": "自动检测模式，应识别为代码生成模式"
+			},
+			"response": []
+		},
+		{
+			"name": "7. 流式查询-代码生成",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"响应类型为文本\", function () {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('text/plain');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"生成一个完整的UART通信示例\",\n  \"mode\": \"code\",\n  \"k\": 4\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/document/query/stream",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"query",
+						"stream"
+					]
+				},
+				"description": "流式查询文档，支持实时输出"
+			},
+			"response": []
+		},
+		{
+			"name": "8. 错误测试-空查询",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 422\", function () {",
+							"    pm.response.to.have.status(422);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"\",\n  \"mode\": \"qa\",\n  \"k\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/document/query",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"query"
+					]
+				},
+				"description": "测试空查询的错误处理"
+			},
+			"response": []
+		},
+		{
+			"name": "9. 错误测试-k值超出范围",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"状态码为 422\", function () {",
+							"    pm.response.to.have.status(422);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"query\": \"测试查询\",\n  \"mode\": \"qa\",\n  \"k\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/document/query",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"document",
+						"query"
+					]
+				},
+				"description": "测试 k 值超出范围的错误处理（k 应在 1-10 之间）"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
+}
+

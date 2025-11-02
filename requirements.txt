@@ -1,3 +1,4 @@
+# 基础依赖
 fastapi>=0.110.0
 uvicorn>=0.29.0
 python-dotenv==1.0.1
@@ -6,3 +7,9 @@ pydantic==2.9.0
 ics>=0.7
 python-multipart>=0.0.6
 pytz>=2024.1
+# 文档分析功能依赖
+faiss-cpu>=1.12.0
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-text-splitters>=0.3.0
+langchain-core>=0.3.0
