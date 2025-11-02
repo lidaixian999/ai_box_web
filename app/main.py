@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
-from app.routers import ai, schedule
+from app.routers import ai, schedule, tarot
 from app.dependencies import get_ai_service
 
 app = FastAPI(
@@ -53,11 +53,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # 包含路由
 app.include_router(ai.router, prefix="/api/ai", tags=["AI服务"])
 app.include_router(schedule.router, prefix="/api/schedule", tags=["课表转换"])
+app.include_router(tarot.router, prefix="/api/tarot", tags=["塔罗牌"])  # 添加塔罗牌路由
+
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        app,
+        "main:app",
         host=os.getenv("APP_HOST", "0.0.0.0"),
         port=int(os.getenv("APP_PORT", 8000)),
         reload=True
